@@ -1,0 +1,31 @@
+name: Build KDMapper
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Скачивание кода
+        uses: actions/checkout@v4
+
+      - name: Установка Windows WDK
+        run: |
+          choco install windowsdriverkit11 -y --no-progress
+
+      - name: Настройка MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Сборка kdmapper.sln
+        run: msbuild "kdmapper.sln" /p:Configuration=Release /p:Platform=x64
+
+      - name: Упаковка готовых файлов
+        uses: actions/upload-artifact@v4
+        with:
+          name: kdmapper-release
+          path: |
+            x64/Release/*.exe
+            x64/Release/*.sys
+            x64/Release/*.dll
